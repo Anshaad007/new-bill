@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALIF Online School - Automatic Bill Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:wght@700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+    <script src="html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --brand-dark: #113946;
+            --brand-gold: #BCA37F;
+            --brand-cream: #FFF2D8;
+            --brand-table: #EAD7BB;
+            --text-color: #113946;
+            --text-muted: #6b7280;
+            --bg-body: linear-gradient(120deg, #F5F6FA 0%, #EAD7BB 100%);
+            --radius: 18px;
+            --shadow: 0 8px 32px rgba(17, 57, 70, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: var(--bg-body);
+            min-height: 100vh;
+            color: var(--text-color);
+            padding-bottom: 60px;
+        }
+
+        /* WELCOME BANNER */
+        .welcome-banner {
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1.5px solid #E0E3EB;
+            padding: 24px 0 16px 0;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(17, 57, 70, 0.03);
+        }
+
+        .welcome-banner h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .welcome-banner p {
+            font-size: 0.95rem;
+            color: var(--brand-gold);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .arabic-header {
+            text-align: center;
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            background: #fff;
+            padding: 8px 0;
+            border-bottom: 1px solid #E0E3EB;
+        }
+
+        /* CONTAINER LAYOUT */
+        .container {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                grid-template-columns: 360px 1fr;
+            }
+        }
+
+        /* CARDS / PANELS */
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid #BCA37F;
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--brand-dark);
+            border-bottom: 2px solid var(--brand-gold);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* FORMS */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--brand-dark);
+        }
+
+        .form-control, select {
+            width: 100%;
+            background: #fff;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: var(--brand-dark);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus, select:focus {
+            border-color: var(--brand-dark);
+            box-shadow: 0 0 0 3px rgba(17, 57, 70, 0.08);
+        }
+
+        /* UPLOAD AREA */
+        .upload-zone {
+            border: 2.5px dashed var(--brand-gold);
+            border-radius: var(--radius);
+            padding: 28px 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.22s;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--brand-dark);
+            background: var(--brand-cream);
+        }
+
+        /* BUTTONS */
+        .btn {
+            background: var(--brand-dark);
+            color: var(--brand-cream);
+            font-family: inherit;
+            font-weight: 700;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #1d5263;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--brand-gold);
+            color: var(--brand-dark);
+        }
+
+        .btn-outline:hover {
+            background: rgba(188, 163, 127, 0.1);
+        }
+
+        .btn-gold {
+            background: var(--brand-gold);
+            color: var(--brand-dark);
+        }
+
+        .btn-gold:hover {
+            background: #a8906d;
+        }
+
+        /* DATA TABLE */
+        .table-wrap {
+            border: 1.5px solid var(--brand-gold);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        .table-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1.5px solid #E0E3EB;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .search-input {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 8px 14px;
+            color: var(--brand-dark);
+            outline: none;
+            font-family: inherit;
+            width: 240px;
+        }
+
+        .responsive-table {
+            overflow-x: auto;
+            max-height: 480px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        th {
+            background: var(--brand-gold);
+            color: var(--brand-cream);
+            font-weight: 700;
+            padding: 12px 18px;
+            text-align: left;
+            border-bottom: 1.5px solid var(--brand-dark);
+        }
+
+        td {
+            padding: 12px 18px;
+            border-bottom: 1px solid #EAD7BB;
+            color: var(--brand-dark);
+        }
+
+        tr:hover td {
+            background: #faf8f5;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(17, 57, 70, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border: 2px solid var(--brand-gold);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        }
+
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #E0E3EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--brand-dark);
+            color: #fff;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+            background: var(--brand-cream);
+        }
+
+        .modal-footer {
+            padding: 14px 24px;
+            border-top: 1px solid #E0E3EB;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #fff;
+        }
+
+        /* MANUAL GENERATOR ALIGNMENT IN PREVIEW */
+        .invoice-preview {
+            background: #FFF2D8;
+            border: 1.5px solid #d4c2a8;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            color: var(--brand-dark);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            width: 650px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .invoice-header-div {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1.5px solid #d4c2a8;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+
+        .preview-logo {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #EAD7BB;
+            border: 1.5px solid #BCA37F;
+            margin: 18px 0;
+        }
+
+        .preview-table th {
+            background: #BCA37F;
+            color: #FFF2D8;
+            padding: 8px 12px;
+            font-weight: 700;
+        }
+
+        .preview-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #BCA37F;
+        }
+
+        .total-box-div {
+            background: var(--brand-dark);
+            color: #FFF2D8;
+            padding: 10px 24px;
+            border-radius: 6px;
+            display: inline-block;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        /* LOADER */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--brand-dark);
+            margin-top: 50px;
+            padding: 20px 0;
+            border-top: 1.5px solid #BCA37F;
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="welcome-banner">
+        <h1>Welcome to ALIF Online School!</h1>
+        <p>✨ AUTOMATED RECEIPT GENERATOR PANEL ✨</p>
+    </header>
+    
+    <div class="arabic-header">السلام عليكم ورحمة الله</div>
+
+    <div class="container">
+        <!-- CONTROLS & SETTINGS -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="card">
+                <div class="card-title">📂 1. Upload Source File</div>
+                <input type="file" id="fileInput" accept=".csv,.xls,.xlsx" style="display: none;">
+                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                    <span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">📄</span>
+                    <div style="font-weight: 700; margin-bottom: 4px;">Click to Upload Sheet</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">Supports CSV, XLS, XLSX</div>
+                </div>
+                <div id="fileStatusLabel" style="font-size: 0.85rem; text-align: center; font-weight: 600;"></div>
+            </div>
+
+            <!-- COLUMN MAPPER -->
+            <div class="card">
+                <div class="card-title">⚙️ 2. Map Sheet Columns</div>
+                <div id="mapperList" style="display: flex; flex-direction: column; gap: 12px;">
+                    <p style="font-size: 0.82rem; color: var(--text-muted);">Please upload a file first to initialize smart column mapping.</p>
+                </div>
+            </div>
+
+            <!-- SCHOOL CONFIGURATION -->
+            <div class="card">
+                <div class="card-title">🏢 3. School Details</div>
+                <div class="form-group">
+                    <label>School Name</label>
+                    <input type="text" id="orgName" class="form-control" value="ALIF ONLINE MORAL SCHOOL">
+                </div>
+                <div class="form-group">
+                    <label>Address Line 1</label>
+                    <input type="text" id="orgAddress" class="form-control" value="Othukkungal (PO), Malappuram, Kerala 676531">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" id="orgPhone" class="form-control" value="9061711444">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="text" id="orgEmail" class="form-control" value="info1alifonlinemoralschool@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>School Website</label>
+                    <input type="text" id="orgWebsite" class="form-control" value="www.alifonlinemoralschool.com">
+                </div>
+                <div class="form-group">
+                    <label>GSTIN</label>
+                    <input type="text" id="orgGstin" class="form-control" value="32ACAFA0267H1ZY">
+                </div>
+                <div class="form-group">
+                    <label>Tax (%)</label>
+                    <input type="number" id="taxPercent" class="form-control" value="18">
+                </div>
+            </div>
+        </div>
+
+        <!-- WORKSPACE VIEW -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- STATS BLOCK -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px;">
+                <div class="card" style="align-items: center; padding: 18px; gap: 4px;">
+                    <div id="statTotal" style="font-size: 1.8rem; font-weight: 800;">0</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Total Rows</div>
+                </div>
+                <div class="card" style="align-items: center; padding: 18px; gap: 4px;">
+                    <div id="statFiltered" style="font-size: 1.8rem; font-weight: 800;">0</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Filtered Rows</div>
+                </div>
+                <div class="card" style="align-items: center; padding: 18px; gap: 4px;">
+                    <div id="statCols" style="font-size: 1.8rem; font-weight: 800;">0</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Columns</div>
+                </div>
+            </div>
+
+            <!-- PROCESS PANEL -->
+            <div class="card" style="flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 2px;">⚡ Bulk Automated Generator</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted);">Process all students dynamically and package as ZIP.</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-gold" id="bulkProcessBtn" onclick="runBulkProcess()" disabled>
+                        ⚡ Generate All Receipts
+                    </button>
+                    <button class="btn" id="zipDownloadBtn" onclick="downloadAllZip()" style="display: none; background: #2e7d32;">
+                        📦 Download ZIP
+                    </button>
+                </div>
+            </div>
+
+            <!-- DATASHEET TABLE -->
+            <div class="table-wrap">
+                <div class="table-header">
+                    <h3 style="font-size: 1.05rem; font-weight: 800;">📋 Uploaded Student Records</h3>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search students..." oninput="handleSearch()">
+                </div>
+                <div class="responsive-table">
+                    <table id="recordsTable">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; width: 60px;">#</th>
+                                <th>Please upload a source file to view details...</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="2" style="text-align: center; padding: 40px; color: var(--text-muted); font-weight: 600;">No active dataset loaded.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREVIEW MODAL -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem;">📄 Alif Moral School - Fee Receipt Preview</h3>
+                <button onclick="hidePreviewModal()" style="background: none; border: none; font-size: 1.8rem; color: #fff; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="invoice-preview" id="invoiceMarkup"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="hidePreviewModal()">Cancel</button>
+                <button class="btn btn-outline" onclick="toggleEditMode()" id="editBtn">✏️ Edit</button>
+                <button class="btn btn-gold" onclick="saveAndDownloadPDF()" id="saveDownloadBtn" style="display:none;">💾 Save & Download</button>
+                <button class="btn btn-gold" onclick="downloadIndividualPDF()" id="downloadBtn">Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Developed by Muhammed Anshad &nbsp;|&nbsp; 8138083823 &nbsp;|&nbsp; &copy; Copyright
+    </footer>
+
+    <script>
+        const API_BASE = window.location.origin.includes('5000') ? '' : 'http://localhost:5000';
+        let fullHeaders = [];
+        let allRecords = [];
+        let filteredRecords = [];
+        let colMapping = {};
+        let activeRecord = null;
+        let editedRecords = {}; // Store edited data for each record
+        let isEditMode = false;
+
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const form = new FormData();
+            form.append('file', file);
+
+            document.getElementById('fileStatusLabel').textContent = '⏳ Processing file...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/upload`, {
+                    method: 'POST',
+                    body: form
+                });
+                const payload = await res.json();
+
+                if (payload.success) {
+                    fullHeaders = payload.headers;
+                    allRecords = payload.rows;
+                    colMapping = payload.column_map;
+                    filteredRecords = [...allRecords];
+
+                    document.getElementById('fileStatusLabel').innerHTML = `✅ Loaded: <span style="color:var(--brand-dark)">${payload.filename}</span>`;
+                    
+                    updateOverviewStats();
+                    renderMappingForm();
+                    renderDataTable();
+
+                    document.getElementById('bulkProcessBtn').disabled = false;
+                } else {
+                    alert('Error parsing document: ' + payload.error);
+                    document.getElementById('fileStatusLabel').textContent = '❌ Upload failed';
+                }
+            } catch (err) {
+                alert('Upload action failed: ' + err.message);
+                document.getElementById('fileStatusLabel').textContent = '❌ Connection error';
+            }
+        });
+
+        function updateOverviewStats() {
+            document.getElementById('statTotal').textContent = allRecords.length;
+            document.getElementById('statFiltered').textContent = filteredRecords.length;
+            document.getElementById('statCols').textContent = fullHeaders.length;
+        }
+
+        function renderMappingForm() {
+            const container = document.getElementById('mapperList');
+            container.innerHTML = '';
+
+            const slots = [
+                { key: 'name', title: 'Student Name Column' },
+                { key: 'amount', title: 'Fee Amount Column' },
+                { key: 'date', title: 'Payment Date Column' },
+                { key: 'transaction_id', title: 'Transaction ID Column' },
+                { key: 'class', title: 'Student Class Column' },
+                { key: 'description', title: 'Description / Fee Type' }
+            ];
+
+            slots.forEach(slot => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+
+                const label = document.createElement('label');
+                label.textContent = slot.title;
+
+                const select = document.createElement('select');
+                select.onchange = (e) => {
+                    colMapping[slot.key] = e.target.value;
+                    pushMappingUpdate();
+                };
+
+                const fallback = document.createElement('option');
+                fallback.value = '';
+                fallback.textContent = '-- Map Column --';
+                select.appendChild(fallback);
+
+                fullHeaders.forEach(head => {
+                    const opt = document.createElement('option');
+                    opt.value = head;
+                    opt.textContent = head;
+                    if (colMapping[slot.key] === head) {
+                        opt.selected = true;
+                    }
+                    select.appendChild(opt);
+                });
+
+                group.appendChild(label);
+                group.appendChild(select);
+                container.appendChild(group);
+            });
+        }
+
+        async function pushMappingUpdate() {
+            await fetch(`${API_BASE}/api/update-column-map`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ column_map: colMapping })
+            });
+        }
+
+        function renderDataTable() {
+            const table = document.getElementById('recordsTable');
+            table.innerHTML = '';
+
+            const thead = document.createElement('thead');
+            const hRow = document.createElement('tr');
+            hRow.innerHTML = `<th style="text-align: center; width: 60px;">#</th>`;
+
+            const primaryFields = fullHeaders.slice(0, 5);
+            primaryFields.forEach(field => {
+                hRow.innerHTML += `<th>${escapeHtml(field)}</th>`;
+            });
+            hRow.innerHTML += `<th style="width: 140px; text-align: center;">Actions</th>`;
+            thead.appendChild(hRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            if (filteredRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${primaryFields.length + 2}" style="text-align: center; padding: 40px; color: var(--text-muted); font-weight: 600;">No records found.</td></tr>`;
+            } else {
+                filteredRecords.forEach((row, idx) => {
+                    const rRow = document.createElement('tr');
+                    rRow.innerHTML = `<td style="text-align: center; font-weight: 700; color: var(--brand-gold);">${idx + 1}</td>`;
+
+                    primaryFields.forEach(field => {
+                        let value = escapeHtml(row[field] || '');
+                        // Add rupee sign to amount column
+                        if (field === colMapping['amount'] && value && !isNaN(parseFloat(value.replace(/,/g, '')))) {
+                            value = '₹' + value;
+                        }
+                        rRow.innerHTML += `<td title="${value}">${value}</td>`;
+                    });
+
+                    rRow.innerHTML += `
+                        <td style="text-align: center;">
+                            <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="launchPreview(${allRecords.indexOf(row)})">🔍 Preview</button>
+                        </td>
+                    `;
+                    tbody.appendChild(rRow);
+                });
+            }
+            table.appendChild(tbody);
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!query) {
+                filteredRecords = [...allRecords];
+            } else {
+                filteredRecords = allRecords.filter(row => {
+                    return Object.values(row).some(v => String(v).toLowerCase().includes(query));
+                });
+            }
+            updateOverviewStats();
+            renderDataTable();
+        }
+
+        function fetchSchoolConfigs() {
+            return {
+                org_name: document.getElementById('orgName').value,
+                org_address: document.getElementById('orgAddress').value,
+                org_phone: document.getElementById('orgPhone').value,
+                org_email: document.getElementById('orgEmail').value,
+                org_website: document.getElementById('orgWebsite').value,
+                org_gstin: document.getElementById('orgGstin').value,
+                tax_percent: document.getElementById('taxPercent').value
+            };
+        }
+
+        function fixSciNotation(val) {
+            if (!val || typeof val !== 'string') return val || 'N/A';
+            if (/[eE][+\-]/.test(val)) {
+                try {
+                    const num = parseFloat(val);
+                    if (Number.isFinite(num) && num === Math.floor(num)) return num.toFixed(0);
+                    return num.toString();
+                } catch(e) {}
+            }
+            return val;
+        }
+
+        function launchPreview(idx) {
+            activeRecord = allRecords[idx];
+            const cfg = fetchSchoolConfigs();
+            const editedData = editedRecords[idx] || {};
+
+            const name = (activeRecord[colMapping['name']] || 'N/A').toUpperCase();
+            const amount = parseFloat(String(activeRecord[colMapping['amount']] || '0').replace(/,/g, '')) || 0.0;
+            const date = activeRecord[colMapping['date']] || 'N/A';
+            const txn = fixSciNotation(editedData.transaction_id || activeRecord[colMapping['transaction_id']] || 'N/A');
+            const sClass = (activeRecord[colMapping['class']] || 'N/A').toUpperCase();
+            const desc = (activeRecord[colMapping['description']] || 'FEE PAYMENT').toUpperCase();
+
+            const taxPercent = parseFloat(cfg.tax_percent) || 18;
+            const basePrice = amount / (1 + taxPercent / 100);
+
+            // Use edited invoice number if available
+            const invoiceNumber = editedData.invoice_number || txn;
+
+            // Use edited fee items if available
+            const feeItems = editedData.fee_items || [
+                { description: desc, qty: 1, price: basePrice, tax: taxPercent }
+            ];
+
+            let feeItemsHTML = '';
+            feeItems.forEach((item) => {
+                const itemTotal = item.qty * item.price * (1 + item.tax / 100);
+                feeItemsHTML += `
+                    <tr>
+                        <td style="text-align: left; font-weight: 600; padding: 10px 14px;">${escapeHtml(item.description)}</td>
+                        <td style="text-align: center; padding: 10px 14px;">${item.qty}</td>
+                        <td style="text-align: right; padding: 10px 14px;">₹${item.price.toFixed(2)}</td>
+                        <td style="text-align: center; padding: 10px 14px;">${item.tax.toFixed(0)}%</td>
+                        <td style="text-align: right; font-weight: 800; padding: 10px 14px;">₹${itemTotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            const totalAmount = feeItems.reduce((sum, item) => sum + (item.qty * item.price * (1 + item.tax / 100)), 0);
+
+            const previewHTML = `
+                <div class="invoice-header-div">
+                    <div style="flex: 1;">
+                        <h2 style="font-family: Arial, sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--brand-dark); margin-bottom: 6px; letter-spacing: 0.5px;">${escapeHtml(cfg.org_name)}</h2>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">Othukkungal (PO)</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">Malappuram</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">Kerala - 676531</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">${escapeHtml(cfg.org_phone)}</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">${escapeHtml(cfg.org_email)}</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">${escapeHtml(cfg.org_website)}</p>
+                    </div>
+                    <img src="${API_BASE}/logo.png" alt="School Logo" class="preview-logo" onerror="this.style.display='none'">
+                </div>
+
+                <div class="invoice-header-div" style="border: none; margin-bottom: 24px; padding-bottom: 0;">
+                    <div style="font-size: 13px; font-weight: 600; color: #475569;">
+                        GSTIN: ${escapeHtml(cfg.org_gstin)}
+                    </div>
+                    <div class="student-name" style="font-size: 1.4rem; font-weight: 800; color: var(--brand-dark);">
+                        ${escapeHtml(name)}
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px;">
+                    <div>
+                        <h3 style="font-size: 16px; color: var(--brand-dark); margin-bottom: 8px; border:none; padding:0; font-weight:800;">Bill To</h3>
+                        <p style="font-size:15px; font-weight:800; color: var(--brand-dark);">${escapeHtml(name)}</p>
+                        <p style="font-size:13px; font-weight:600; color: #475569;">${escapeHtml(sClass)}</p>
+                        <p style="font-size:13px; font-weight:600; color: #475569;">PHONE NUMBER</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="margin-bottom: 4px; font-weight:600; color: #475569;"><strong>Invoice #</strong> ${escapeHtml(invoiceNumber)}</p>
+                        <p style="font-weight:600; color: #475569;"><strong>Creation Date</strong> ${escapeHtml(date)}</p>
+                    </div>
+                </div>
+
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 10px 14px;">Description</th>
+                            <th style="text-align: center; width: 60px; padding: 10px 14px;">QTY</th>
+                            <th style="text-align: right; width: 110px; padding: 10px 14px;">Price</th>
+                            <th style="text-align: center; width: 80px; padding: 10px 14px;">Tax</th>
+                            <th style="text-align: right; width: 130px; padding: 10px 14px;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: left; font-weight: 600; padding: 10px 14px;">${escapeHtml(desc)}</td>
+                            <td style="text-align: center; padding: 10px 14px;">1</td>
+                            <td style="text-align: right; padding: 10px 14px;">₹${basePrice.toFixed(2)}</td>
+                            <td style="text-align: center; padding: 10px 14px;">${taxPercent.toFixed(0)}%</td>
+                            <td style="text-align: right; font-weight: 800; padding: 10px 14px;">₹${amount.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                    <div class="total-box-div" style="font-size: 1.15rem; border-radius: 8px; padding: 12px 28px;">
+                        Total: ₹${amount.toFixed(2)}
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid #BCA37F; font-size: 14px;">
+                    <h4 style="margin-bottom: 6px; color: var(--brand-dark); font-weight: 800;">Payment Method</h4>
+                    <p style="color: #475569; font-weight: 600;">UPI: ${escapeHtml(txn)}</p>
+                </div>
+            `;
+
+            document.getElementById('invoiceMarkup').innerHTML = previewHTML;
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        function hidePreviewModal() {
+            document.getElementById('previewModal').classList.remove('active');
+            isEditMode = false;
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const editBtn = document.getElementById('editBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const saveDownloadBtn = document.getElementById('saveDownloadBtn');
+
+            if (isEditMode) {
+                editBtn.textContent = '🔙 Cancel Edit';
+                downloadBtn.style.display = 'none';
+                saveDownloadBtn.style.display = 'inline-flex';
+                renderEditablePreview();
+            } else {
+                editBtn.textContent = '✏️ Edit';
+                downloadBtn.style.display = 'inline-flex';
+                saveDownloadBtn.style.display = 'none';
+                launchPreview(allRecords.indexOf(activeRecord));
+            }
+        }
+
+        function renderEditablePreview() {
+            const idx = allRecords.indexOf(activeRecord);
+            const cfg = fetchSchoolConfigs();
+            const editedData = editedRecords[idx] || {};
+
+            const name = (activeRecord[colMapping['name']] || 'N/A').toUpperCase();
+            const amount = parseFloat(String(activeRecord[colMapping['amount']] || '0').replace(/,/g, '')) || 0.0;
+            const date = activeRecord[colMapping['date']] || 'N/A';
+            const txn = fixSciNotation(editedData.transaction_id || activeRecord[colMapping['transaction_id']] || 'N/A');
+            const sClass = (activeRecord[colMapping['class']] || 'N/A').toUpperCase();
+            const desc = (activeRecord[colMapping['description']] || 'FEE PAYMENT').toUpperCase();
+
+            const taxPercent = parseFloat(cfg.tax_percent) || 18;
+            const basePrice = amount / (1 + taxPercent / 100);
+
+            // Use edited invoice number if available
+            const editedInvoiceNumber = editedData.invoice_number || '';
+
+            // Use edited fee items if available
+            const feeItems = editedData.fee_items || [
+                { description: desc, qty: 1, price: basePrice, tax: taxPercent }
+            ];
+
+            let feeItemsHTML = '';
+            feeItems.forEach((item, index) => {
+                const itemTotal = item.qty * item.price * (1 + item.tax / 100);
+                feeItemsHTML += `
+                    <tr class="fee-item-row" data-index="${index}">
+                        <td><input type="text" class="edit-input" value="${escapeHtml(item.description)}" style="width:100%; padding:6px;" onchange="updateFeeItem(${index}, 'description', this.value)"></td>
+                        <td><input type="number" class="edit-input" value="${item.qty}" style="width:100%; padding:6px; text-align:center;" onchange="updateFeeItem(${index}, 'qty', this.value)"></td>
+                        <td><input type="number" class="edit-input" value="${item.price.toFixed(2)}" style="width:100%; padding:6px; text-align:right;" onchange="updateFeeItem(${index}, 'price', this.value)"></td>
+                        <td><input type="number" class="edit-input" value="${item.tax}" style="width:100%; padding:6px; text-align:center;" onchange="updateFeeItem(${index}, 'tax', this.value)"></td>
+                        <td style="text-align: right; font-weight: 800; padding: 10px 14px;">₹${itemTotal.toFixed(2)}</td>
+                        <td><button onclick="removeFeeItem(${index})" style="background:#ef4444; color:white; border:none; padding:4px 8px; cursor:pointer; border-radius:4px;">×</button></td>
+                    </tr>
+                `;
+            });
+
+            const totalAmount = feeItems.reduce((sum, item) => sum + (item.qty * item.price * (1 + item.tax / 100)), 0);
+
+            const previewHTML = `
+                <div class="invoice-header-div">
+                    <div style="flex: 1;">
+                        <h2 style="font-family: Arial, sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--brand-dark); margin-bottom: 6px; letter-spacing: 0.5px;">${escapeHtml(cfg.org_name)}</h2>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">Othukkungal (PO)</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">Malappuram</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">Kerala - 676531</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">${escapeHtml(cfg.org_phone)}</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">${escapeHtml(cfg.org_email)}</p>
+                        <p style="font-size: 13px; margin: 3px 0; font-weight: 600; color: #475569;">${escapeHtml(cfg.org_website)}</p>
+                    </div>
+                    <img src="${API_BASE}/logo.png" alt="School Logo" class="preview-logo" onerror="this.style.display='none'">
+                </div>
+
+                <div class="invoice-header-div" style="border: none; margin-bottom: 24px; padding-bottom: 0;">
+                    <div style="font-size: 13px; font-weight: 600; color: #475569;">
+                        GSTIN: ${escapeHtml(cfg.org_gstin)}
+                    </div>
+                    <div class="student-name" style="font-size: 1.4rem; font-weight: 800; color: var(--brand-dark);">
+                        ${escapeHtml(name)}
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px;">
+                    <div>
+                        <h3 style="font-size: 16px; color: var(--brand-dark); margin-bottom: 8px; border:none; padding:0; font-weight:800;">Bill To</h3>
+                        <p style="font-size:15px; font-weight:800; color: var(--brand-dark);">${escapeHtml(name)}</p>
+                        <p style="font-size:13px; font-weight:600; color: #475569;">${escapeHtml(sClass)}</p>
+                        <p style="font-size:13px; font-weight:600; color: #475569;">PHONE NUMBER</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="margin-bottom: 4px; font-weight:600; color: #475569;"><strong>Invoice #</strong> <input type="text" id="editInvoiceNumber" value="${editedInvoiceNumber || escapeHtml(txn)}" style="width:150px; padding:4px; border:1px solid #BCA37F; border-radius:4px;"></p>
+                        <p style="font-weight:600; color: #475569;"><strong>Creation Date</strong> ${escapeHtml(date)}</p>
+                    </div>
+                </div>
+
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 10px 14px;">Description</th>
+                            <th style="text-align: center; width: 60px; padding: 10px 14px;">QTY</th>
+                            <th style="text-align: right; width: 110px; padding: 10px 14px;">Price</th>
+                            <th style="text-align: center; width: 80px; padding: 10px 14px;">Tax</th>
+                            <th style="text-align: right; width: 130px; padding: 10px 14px;">Amount</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="feeItemsBody">
+                        ${feeItemsHTML}
+                    </tbody>
+                </table>
+
+                <button onclick="addFeeItem()" style="margin-top: 12px; background: var(--brand-gold); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">+ Add Fee Item</button>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                    <div class="total-box-div" style="font-size: 1.15rem; border-radius: 8px; padding: 12px 28px;">
+                        Total: ₹${totalAmount.toFixed(2)}
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid #BCA37F; font-size: 14px;">
+                    <h4 style="margin-bottom: 6px; color: var(--brand-dark); font-weight: 800;">Payment Method</h4>
+                    <p style="color: #475569; font-weight: 600;">UPI: <input type="text" id="editTransactionId" value="${escapeHtml(txn)}" style="width:300px; padding:4px; border:1px solid #BCA37F; border-radius:4px;"></p>
+                </div>
+            `;
+
+            document.getElementById('invoiceMarkup').innerHTML = previewHTML;
+        }
+
+        function updateFeeItem(index, field, value) {
+            const idx = allRecords.indexOf(activeRecord);
+            if (!editedRecords[idx]) {
+                editedRecords[idx] = {
+                    fee_items: [
+                        { description: (activeRecord[colMapping['description']] || 'FEE PAYMENT').toUpperCase(), qty: 1, price: parseFloat(String(activeRecord[colMapping['amount']] || '0').replace(/,/g, '')) / 1.18, tax: 18 }
+                    ]
+                };
+            }
+            if (field === 'qty' || field === 'price' || field === 'tax') {
+                editedRecords[idx].fee_items[index][field] = parseFloat(value) || 0;
+            } else {
+                editedRecords[idx].fee_items[index][field] = value;
+            }
+            renderEditablePreview();
+        }
+
+        function addFeeItem() {
+            const idx = allRecords.indexOf(activeRecord);
+            if (!editedRecords[idx]) {
+                editedRecords[idx] = {
+                    fee_items: [
+                        { description: (activeRecord[colMapping['description']] || 'FEE PAYMENT').toUpperCase(), qty: 1, price: parseFloat(String(activeRecord[colMapping['amount']] || '0').replace(/,/g, '')) / 1.18, tax: 18 }
+                    ]
+                };
+            }
+            editedRecords[idx].fee_items.push({ description: 'NEW FEE ITEM', qty: 1, price: 0, tax: 18 });
+            renderEditablePreview();
+        }
+
+        function removeFeeItem(index) {
+            const idx = allRecords.indexOf(activeRecord);
+            if (editedRecords[idx] && editedRecords[idx].fee_items.length > 1) {
+                editedRecords[idx].fee_items.splice(index, 1);
+                renderEditablePreview();
+            }
+        }
+
+        function saveAndDownloadPDF() {
+            const idx = allRecords.indexOf(activeRecord);
+            const invoiceNumber = document.getElementById('editInvoiceNumber').value;
+            const transactionId = document.getElementById('editTransactionId').value;
+            
+            if (!editedRecords[idx]) {
+                editedRecords[idx] = {};
+            }
+            editedRecords[idx].invoice_number = invoiceNumber;
+            editedRecords[idx].transaction_id = transactionId;
+            
+            // Read fee items from the editable preview
+            const feeItemRows = document.querySelectorAll('.fee-item-row');
+            const feeItems = [];
+            feeItemRows.forEach(row => {
+                const index = row.dataset.index;
+                const description = row.querySelector('input[type="text"]').value;
+                const qty = parseFloat(row.querySelector('input[type="number"]:nth-of-type(1)').value) || 1;
+                const price = parseFloat(row.querySelector('input[type="number"]:nth-of-type(2)').value) || 0;
+                const tax = parseFloat(row.querySelector('input[type="number"]:nth-of-type(3)').value) || 0;
+                feeItems.push({ description, qty, price, tax });
+            });
+            editedRecords[idx].fee_items = feeItems;
+            
+            console.log('DEBUG: Saved editedRecords[idx]:', editedRecords[idx]);
+            console.log('DEBUG: Saved fee_items:', feeItems);
+            
+            isEditMode = false;
+            document.getElementById('editBtn').textContent = '✏️ Edit';
+            document.getElementById('downloadBtn').style.display = 'inline-flex';
+            document.getElementById('saveDownloadBtn').style.display = 'none';
+            
+            downloadIndividualPDF();
+        }
+
+        async function downloadIndividualPDF() {
+            const idx = allRecords.indexOf(activeRecord);
+            const cfg = fetchSchoolConfigs();
+            const editedData = editedRecords[idx] || {};
+
+            const txn = fixSciNotation(editedData.transaction_id || activeRecord[colMapping['transaction_id']] || 'N/A');
+            const invoiceNumber = editedData.invoice_number || txn;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/download-single-pdf`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        row_data: activeRecord,
+                        column_map: colMapping,
+                        org_settings: cfg,
+                        invoice_number: invoiceNumber,
+                        fee_items: editedData.fee_items || null,
+                        transaction_id: txn
+                    })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert('PDF generation failed: ' + (err.error || 'Unknown error'));
+                    return;
+                }
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const studentName = (activeRecord[colMapping['name']] || 'receipt').replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+                a.href = url;
+                a.download = `${studentName}_Fee_Receipt.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert('Download failed: ' + err.message);
+            }
+        }
+
+        async function runBulkProcess() {
+            const btn = document.getElementById('bulkProcessBtn');
+            btn.innerHTML = `<span class="loader"></span> Processing...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/generate-receipts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        org_settings: fetchSchoolConfigs(),
+                        column_map: colMapping,
+                        edited_records: editedRecords
+                    })
+                });
+
+                const payload = await res.json();
+                if (payload.success) {
+                    alert(`✅ Processed & generated ${payload.total} bills successfully!`);
+                    document.getElementById('zipDownloadBtn').style.display = 'inline-flex';
+                } else {
+                    alert('Generation error: ' + payload.error);
+                }
+            } catch (err) {
+                alert('Connection failure: ' + err.message);
+            } finally {
+                btn.innerHTML = '⚡ Generate All Receipts';
+                btn.disabled = false;
+            }
+        }
+
+        function downloadAllZip() {
+            window.location.href = `${API_BASE}/api/download-receipts-zip`;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
