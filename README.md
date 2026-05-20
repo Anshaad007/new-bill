@@ -64,6 +64,8 @@ auto/
 
 ## 🚀 Running the Application
 
+### Local Development
+
 1. **Start the Flask server**:
    ```bash
    python extract.py
@@ -80,6 +82,47 @@ auto/
    - Complete data table with all records
    - Action buttons for each row (Preview & CSV download)
    - Download All button for entire dataset
+
+### Deploy to Render
+
+1. **Push your code to GitHub**:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   ```
+
+2. **Go to [Render.com](https://render.com)** and sign up/login
+
+3. **Click "New +"** and select "Web Service"
+
+4. **Connect your GitHub repository** and select it
+
+5. **Configure the service**:
+   - **Name**: Your service name (e.g., "csv-invoice-generator")
+   - **Branch**: `main`
+   - **Root Directory**: Leave empty (or specify if needed)
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn extract:app`
+
+6. **Environment Variables** (if needed):
+   - No environment variables required for this app
+
+7. **Click "Create Web Service"**
+
+8. **Wait for deployment** - Render will build and deploy your app
+
+9. **Access your app** at `https://your-service-name.onrender.com`
+
+### Render Deployment Notes
+
+- Render automatically detects the `Procfile` and uses it to run the app
+- The app uses Gunicorn as the production WSGI server
+- Static files (HTML, CSS, JS) are served by Flask
+- Uploads and receipts folders will be created in the container (ephemeral storage)
+- For persistent storage, consider using Render's disk add-on or external storage
 
 ## 📊 How to Use
 
